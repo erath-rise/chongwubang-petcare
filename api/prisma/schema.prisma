@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model post {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  price      Int
+  desc       String?
+  images     String[]
+  address    String
+  city       String
+  latitude   String
+  longitude  String
+  type       String
+  createdAt  DateTime    @default(now())
+  user       user        @relation(fields: [userId], references: [id])
+  userId     String      @db.ObjectId
+  postDetail postDetail?
+  savedPosts savedPost[]
+}
+
+model postDetail {
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  utilities       String?
+  pet             String?
+  age             String?
+  gender          Int?
+  rabiesVaccine   Int?
+  healthCondition Int?
+  times           Int?
+  post            post    @relation(fields: [postId], references: [id])
+  postId          String  @unique @db.ObjectId
+}
+
+model savedPost {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      user     @relation(fields: [userId], references: [id])
+  post      post     @relation(fields: [postId], references: [id])
+  userId    String   @unique @db.ObjectId
+  postId    String   @unique @db.ObjectId
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model user {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  email         String         @unique
+  username      String         @unique
+  password      String
+  avatar        String?
+  createdAt     DateTime       @default(now())
+  posts         post[]
+  savedPosts    savedPost[]
+  chats         chat[]         @relation(fields: [chatIDs], references: [id])
+  chatIDs       String[]       @db.ObjectId
+  sitter        sitter? // 护理员信息（如果用户是护理员）
+  sitterReviews sitterReview[] // 用户发布的护理员评价
+  bookings      booking[] // 用户的预订记录
+}
+
+model chat {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  users       user[]    @relation(fields: [userIDs], references: [id])
+  userIDs     String[]  @db.ObjectId
+  createdAt   DateTime  @default(now())
+  seenBy      String[]  @db.ObjectId
+  messages    message[]
+  lastMessage String?
+}
+
+model message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  text      String
+  userId    String
+  chat      chat     @relation(fields: [chatId], references: [id])
+  chatId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+// 宠物护理员模型
+model sitter {
+  id              String              @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  avatar          String?
+  description     String // 护理员简介
+  isNew           Boolean             @default(true) // 是否是新护理员
+  lastActive      DateTime            @default(now()) // 最后活跃时间
+  rating          Float               @default(0) // 平均评分
+  reviewCount     Int                 @default(0) // 评论总数
+  basePrice       Int // 基础价格（起价）
+  city            String // 城市
+  address         String // 详细地址
+  latitude        String // 纬度
+  longitude       String // 经度
+  user            user                @relation(fields: [userId], references: [id]) // 关联用户
+  userId          String              @unique @db.ObjectId
+  certifications  String[] // 资质证书列表
+  experience      String? // 工作经验描述
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  services        sitterService[] // 提供的服务
+  reviews         sitterReview[] // 收到的评价
+  availability    sitterAvailability[] // 可用时间
+  bookings        booking[] // 预订记录
+}
+
+// 护理员服务类型模型
+model sitterService {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  sitter      sitter   @relation(fields: [sitterId], references: [id], onDelete: Cascade)
+  sitterId    String   @db.ObjectId
+  serviceType String // 服务类型: 遛狗、宠物寄养、上门照看、日间照看
+  price       Int // 该服务的价格
+  description String? // 服务说明
+  duration    Int? // 服务时长(分钟)
+  createdAt   DateTime @default(now())
+
+  @@unique([sitterId, serviceType])
+}
+
+// 护理员评价模型
+model sitterReview {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  sitter    sitter   @relation(fields: [sitterId], references: [id], onDelete: Cascade)
+  sitterId  String   @db.ObjectId
+  user      user     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  rating    Float // 评分 1-5
+  comment   String? // 评价内容
+  images    String[] // 评价图片
+  createdAt DateTime @default(now())
+}
+
+// 护理员可用时间模型
+model sitterAvailability {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  sitter          sitter   @relation(fields: [sitterId], references: [id], onDelete: Cascade)
+  sitterId        String   @db.ObjectId
+  date            DateTime // 日期
+  startTime       String // 开始时间 (HH:mm格式)
+  endTime         String // 结束时间 (HH:mm格式)
+  isAvailable     Boolean  @default(true) // 是否可用
+  calendarUpdated DateTime @default(now()) // 日历更新时间
+  createdAt       DateTime @default(now())
+
+  @@unique([sitterId, date, startTime])
+}
+
+// 预订模型
+model booking {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  sitter        sitter   @relation(fields: [sitterId], references: [id])
+  sitterId      String   @db.ObjectId
+  user          user     @relation(fields: [userId], references: [id])
+  userId        String   @db.ObjectId
+  serviceType   String // 服务类型
+  date          DateTime // 预订日期
+  startTime     String // 开始时间
+  endTime       String // 结束时间
+  price         Int // 价格
+  status        String   @default("pending") // 状态: pending, confirmed, completed, cancelled
+  petInfo       String? // 宠物信息
+  specialNeeds  String? // 特殊需求
+  lastContacted DateTime? // 最后联系时间
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
