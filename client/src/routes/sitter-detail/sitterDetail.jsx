@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import apiRequest from "../../lib/apiRequest";
+import Map from "../../components/map/Map";
 import "./sitterDetail.scss";
 
 function SitterDetail() {
@@ -385,9 +386,19 @@ function SitterDetail() {
           <section className="homeSection">
             <h2 className="sectionTitle">关于 {formattedSitter.name} 的家</h2>
             
-            <div className="mapPlaceholder">
-              <div className="mapPin">📍</div>
-              <div className="mapLabel">{formattedSitter.aboutHome.address}</div>
+            <div className="mapContainer">
+              <Map 
+                items={[{
+                  id: formattedSitter.id,
+                  latitude: formattedSitter.aboutHome.lat,
+                  longitude: formattedSitter.aboutHome.lng,
+                  title: formattedSitter.name,
+                  images: formattedSitter.images,
+                  price: currentService.price,
+                  linkPath: `/sitters/${formattedSitter.id}`,
+                }]} 
+                city={formattedSitter.location}
+              />
             </div>
 
             <div className="homeDetails">
@@ -475,7 +486,7 @@ function SitterDetail() {
               </div>
             </div>
 
-            <div className="paymentMethods">
+            {/* <div className="paymentMethods">
               <div className="paymentIcons">
                 <img src="https://img.icons8.com/color/48/mastercard.png" alt="Mastercard" />
                 <img src="https://img.icons8.com/color/48/visa.png" alt="Visa" />
@@ -487,7 +498,7 @@ function SitterDetail() {
                 <img src="https://img.icons8.com/color/48/wechat.png" alt="WeChat Pay" />
                 <img src="https://img.icons8.com/color/48/alipay.png" alt="Alipay" />
               </div>
-            </div>
+            </div> */}
           </div>
         </aside>
       </div>

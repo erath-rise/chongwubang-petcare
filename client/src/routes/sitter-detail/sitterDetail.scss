@@ -613,6 +613,14 @@
     }
 
     .homeSection {
+      .mapContainer {
+        position: relative;
+        height: 300px;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+      }
+
       .mapPlaceholder {
         position: relative;
         height: 300px;

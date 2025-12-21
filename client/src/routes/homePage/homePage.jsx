@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 function HomePage() {
 
   const { currentUser } = useContext(AuthContext)
-  // currentUser 可能在未来的功能中使用
-  console.log(currentUser); // 暂时保留以避免警告
+  // currentUser
+  console.log(currentUser); 
   const navigate = useNavigate();
 
   // 搜索表单状态
@@ -32,14 +32,13 @@ function HomePage() {
   return (
     <div>
       <main className="flex-1">
-
         {/* Banner */}
-        <section className="w-full py-12 bg-white">
+        <section className="w-full bg-white">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-6">
                 <div className="space-y-4">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl xl:text-5xl/none text-gray-900">
+                  <h1 className="text-3xl font-bold sm:text-4xl xl:text-5xl/none text-gray-900">
                   一键找遛狗、找照护，让宠物照看不再是难题。
                   </h1>
                   <p className="text-xl text-gray-600 md:text-2xl">

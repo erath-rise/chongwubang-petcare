@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import apiRequest from "../../lib/apiRequest";
+import Map from "../../components/map/Map";
 import "./sitterList.scss";
 
 function SitterList() {
@@ -82,7 +83,7 @@ function SitterList() {
   }, [filters.location, filters.serviceType, filters.priceMin, filters.priceMax, sortBy]);
 
   // 计算距离（模拟函数）
-  const calculateDistance = (lat, lng) => {
+  const calculateDistance = () => {
     // 这里应该使用实际的地理位置计算
     // 暂时返回随机距离
     const distance = (Math.random() * 3 + 0.5).toFixed(1);
@@ -110,6 +111,21 @@ function SitterList() {
     const value = parseInt(e.target.value) || 0;
     setFilters({ ...filters, [type]: value });
   };
+
+  // 将 sitters 数据转换为 Map 组件需要的格式
+  const mapItems = sitters
+    .filter(sitter => sitter.latitude && sitter.longitude)
+    .map(sitter => ({
+      id: sitter.id,
+      latitude: parseFloat(sitter.latitude) || 0,
+      longitude: parseFloat(sitter.longitude) || 0,
+      title: sitter.name || sitter.user?.name || "护理员",
+      images: sitter.avatar || sitter.user?.avatar 
+        ? [sitter.avatar || sitter.user.avatar] 
+        : ["/noavatar.jpg"], // 如果没有头像，使用默认头像
+      price: sitter.basePrice || sitter.price || 0,
+      linkPath: `/sitters/${sitter.id}`, // 护理员的链接路径
+    }));
 
   return (
     <div className="sitterListPage">
@@ -258,7 +274,7 @@ function SitterList() {
                       
                       <p className="sitterDescription">{sitter.description}</p>
                       <p className="sitterDistance">
-                        {calculateDistance(sitter.latitude, sitter.longitude)}
+                        {calculateDistance()}
                       </p>
                       
                       <div className="sitterStatus">
@@ -313,25 +329,13 @@ function SitterList() {
         {/* 右侧地图区 */}
         <aside className="mapSidebar">
           <div className="mapContainer">
-            <div className="mapPlaceholder">
-              <p className="mapText">地图视图</p>
-              <p className="mapSubtext">显示护理员位置</p>
-              {/* 这里可以集成真实的地图组件 */}
-              <div className="mapMarkers">
-                {sitters.map((sitter, index) => (
-                  <div 
-                    key={sitter.id} 
-                    className="mapMarker"
-                    style={{
-                      top: `${30 + index * 20}%`,
-                      left: `${40 + index * 15}%`
-                    }}
-                  >
-                    {index + 1}
-                  </div>
-                ))}
+            {loading ? (
+              <div className="mapLoading">
+                <p>加载地图中...</p>
               </div>
-            </div>
+            ) : (
+              <Map items={mapItems} city={filters.location} />
+            )}
           </div>
         </aside>
       </div>
