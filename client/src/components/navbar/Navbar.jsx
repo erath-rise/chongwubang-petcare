@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import "./navbar.scss";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
@@ -10,9 +10,17 @@ function Navbar() {
   const { currentUser } = useContext(AuthContext);
 
   const fetch = useNotificationStore((state) => state.fetch);
+  const reset = useNotificationStore((state) => state.reset);
   const number = useNotificationStore((state) => state.number);
 
-  if(currentUser) fetch();
+  useEffect(() => {
+    if (currentUser) {
+      fetch();
+    } else {
+      // 用户登出时重置通知数量
+      reset();
+    }
+  }, [currentUser, fetch, reset]);
 
   return (
     <nav>

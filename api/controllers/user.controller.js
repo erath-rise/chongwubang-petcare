@@ -54,6 +54,12 @@ export const updateUser = async (req, res) => {
     res.status(200).json(rest);
   } catch (err) {
     console.log(err);
+    // 处理唯一约束冲突错误
+    if (err.code === 'P2002') {
+      const field = err.meta?.target?.includes('username') ? '用户名' : 
+                   err.meta?.target?.includes('email') ? '邮箱' : '字段';
+      return res.status(400).json({ message: `该${field}已被使用，请换一个！` });
+    }
     res.status(500).json({ message: "Failed to update users!" });
   }
 };

@@ -15,17 +15,22 @@ export const getChats = async (req, res) => {
     for (const chat of chats) {
       const receiverId = chat.userIDs.find((id) => id !== tokenUserId);
 
-      const receiver = await prisma.user.findUnique({
-        where: {
-          id: receiverId,
-        },
-        select: {
-          id: true,
-          username: true,
-          avatar: true,
-        },
-      });
-      chat.receiver = receiver;
+      if (receiverId) {
+        const receiver = await prisma.user.findUnique({
+          where: {
+            id: receiverId,
+          },
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        });
+        chat.receiver = receiver;
+      } else {
+        // 如果找不到 receiver，设置为 null
+        chat.receiver = null;
+      }
     }
 
     res.status(200).json(chats);
@@ -39,12 +44,10 @@ export const getChat = async (req, res) => {
   const tokenUserId = req.userId;
 
   try {
+    // 先查找聊天，然后检查用户权限
     const chat = await prisma.chat.findUnique({
       where: {
         id: req.params.id,
-        userIDs: {
-          hasSome: [tokenUserId],
-        },
       },
       include: {
         messages: {
@@ -55,16 +58,25 @@ export const getChat = async (req, res) => {
       },
     });
 
-    await prisma.chat.update({
-      where: {
-        id: req.params.id,
-      },
-      data: {
-        seenBy: {
-          push: [tokenUserId],
+    // 检查用户是否有权限访问这个聊天
+    if (!chat || !chat.userIDs.includes(tokenUserId)) {
+      return res.status(403).json({ message: "Access denied!" });
+    }
+
+    // 更新已读状态：如果用户ID不在seenBy中，则添加
+    const seenBy = chat.seenBy || [];
+    if (!seenBy.includes(tokenUserId)) {
+      await prisma.chat.update({
+        where: {
+          id: req.params.id,
         },
-      },
-    });
+        data: {
+          seenBy: {
+            push: [tokenUserId],
+          },
+        },
+      });
+    }
     res.status(200).json(chat);
   } catch (err) {
     console.log(err);
@@ -138,20 +150,35 @@ export const readChat = async (req, res) => {
 
   
   try {
-    const chat = await prisma.chat.update({
+    // 先查找聊天，然后检查用户权限
+    const chat = await prisma.chat.findUnique({
       where: {
         id: req.params.id,
-        userIDs: {
-          hasSome: [tokenUserId],
-        },
+      },
+    });
+
+    // 检查用户是否有权限访问这个聊天
+    if (!chat || !chat.userIDs.includes(tokenUserId)) {
+      return res.status(403).json({ message: "Access denied!" });
+    }
+
+    // 更新已读状态：如果用户ID不在seenBy中，则添加
+    const seenBy = chat.seenBy || [];
+    const updatedSeenBy = seenBy.includes(tokenUserId) 
+      ? seenBy 
+      : [...seenBy, tokenUserId];
+
+    const updatedChat = await prisma.chat.update({
+      where: {
+        id: req.params.id,
       },
       data: {
         seenBy: {
-          set: [tokenUserId],
+          set: updatedSeenBy,
         },
       },
     });
-    res.status(200).json(chat);
+    res.status(200).json(updatedChat);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Failed to read chat!" });

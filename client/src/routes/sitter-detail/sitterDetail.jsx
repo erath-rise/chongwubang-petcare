@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import apiRequest from "../../lib/apiRequest";
 import Map from "../../components/map/Map";
+import Chat from "../../components/chat/Chat";
+import { AuthContext } from "../../context/AuthContext";
 import "./sitterDetail.scss";
 
 function SitterDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { currentUser } = useContext(AuthContext);
   const [selectedImage, setSelectedImage] = useState(0);
   const [petCount, setPetCount] = useState(1);
   const [selectedService, setSelectedService] = useState("遛狗");
@@ -14,6 +17,9 @@ function SitterDetail() {
   const [sitter, setSitter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showChat, setShowChat] = useState(false);
+  const [currentChat, setCurrentChat] = useState(null);
+  const [receiver, setReceiver] = useState(null);
 
   // 从API获取护理员数据
   useEffect(() => {
@@ -179,6 +185,54 @@ function SitterDetail() {
   const calendarDays = generateCalendar(currentMonthData.month, currentMonthData.year);
 
   const weekDays = ["一", "二", "三", "四", "五", "六", "日"];
+
+  // 处理联系按钮点击
+  const handleContact = async () => {
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+
+    if (!sitter || !sitter.userId) {
+      alert("无法开始聊天：护理员信息无效");
+      return;
+    }
+
+    try {
+      // 尝试创建新聊天或获取现有聊天
+      const chatResponse = await apiRequest.post("/chats", { receiverId: sitter.userId });
+      console.log('Chat response:', chatResponse.data);
+
+      // 获取该聊天的详细信息（包括消息）
+      const chatDetailResponse = await apiRequest.get(`/chats/${chatResponse.data.id}`);
+      console.log('Chat detail response:', chatDetailResponse.data);
+
+      // 设置接收者信息
+      const receiverInfo = {
+        id: sitter.userId,
+        username: sitter.name,
+        avatar: sitter.avatar || sitter.user?.avatar,
+      };
+
+      setReceiver(receiverInfo);
+      setCurrentChat(chatDetailResponse.data);
+      setShowChat(true);
+    } catch (err) {
+      console.error('Error in handleContact:', err);
+      if (err.response) {
+        console.error('Error response:', err.response.data);
+        if (err.response.status === 401) {
+          navigate("/login");
+        } else if (err.response.status === 404) {
+          alert("未找到用户。请稍后再试。");
+        } else {
+          alert(err.response.data.message || "无法开始聊天。请稍后再试。");
+        }
+      } else {
+        alert("网络错误。请检查您的连接并重试。");
+      }
+    }
+  };
 
   return (
     <div className="sitterDetailPage">
@@ -463,7 +517,7 @@ function SitterDetail() {
               </div>
             </div>
 
-            <button className="contactButton">联系 {formattedSitter.name}</button> 
+            <button className="contactButton" onClick={handleContact}>联系 {formattedSitter.name}</button> 
 
             <div className="cancellationPolicy">
               <div className="policyHeader">
@@ -482,7 +536,7 @@ function SitterDetail() {
               <div>
                 <div className="guaranteeTitle">通过 宠物帮 预订</div>
                 <p className="guaranteeText">享受 宠物帮 保障，包括免费客户支持、安全无现金支付、每日更新等</p>
-                <a href="#" className="guaranteeLink">阅读更多 ↗</a>
+                {/* <a href="#" className="guaranteeLink">阅读更多 ↗</a> */}
               </div>
             </div>
 
@@ -502,6 +556,23 @@ function SitterDetail() {
           </div>
         </aside>
       </div>
+
+      {/* 聊天弹窗 */}
+      {showChat && (
+        <div className="chatPopup">
+          <div className="chatPopupHeader">
+            <h3>与 {formattedSitter.name} 聊天</h3>
+            <button className="closeChatButton" onClick={() => {
+              setShowChat(false);
+              setCurrentChat(null);
+              setReceiver(null);
+            }}>
+              ✕
+            </button>
+          </div>
+          <Chat initialChat={currentChat} initialReceiver={receiver} />
+        </div>
+      )}
     </div>
   );
 }

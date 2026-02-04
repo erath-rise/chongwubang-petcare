@@ -6,7 +6,7 @@ import { format } from "timeago.js";
 import { SocketContext } from "../../context/SocketContext";
 import { useNotificationStore } from "../../lib/notificationStore";
 
-function Chat({ chats }) {
+function Chat({ chats, initialChat, initialReceiver }) {
   const [chat, setChat] = useState(null);
   const { currentUser } = useContext(AuthContext);
   const { socket } = useContext(SocketContext);
@@ -19,10 +19,17 @@ function Chat({ chats }) {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
+  // 如果有初始聊天，直接打开
+  useEffect(() => {
+    if (initialChat && initialReceiver) {
+      setChat({ ...initialChat, receiver: initialReceiver });
+    }
+  }, [initialChat, initialReceiver]);
+
   const handleOpenChat = async (id, receiver) => {
     try {
       const res = await apiRequest("/chats/" + id);
-      if (!res.data.seenBy.includes(currentUser.id)) {
+      if (res.data.seenBy && !res.data.seenBy.includes(currentUser.id)) {
         decrease();
       }
       setChat({ ...res.data, receiver });
@@ -75,26 +82,29 @@ function Chat({ chats }) {
 
   return (
     <div className="chat">
-      <div className="messages">
-        <p className="text-4xl mt-5">消息</p>
-        {chats?.map((c) => (
-          <div
-            className="message"
-            key={c.id}
-            style={{
-              backgroundColor:
-                c.seenBy.includes(currentUser.id) || chat?.id === c.id
-                  ? "white"
-                  : "#fecd514e",
-            }}
-            onClick={() => handleOpenChat(c.id, c.receiver)}
-          >
-            <img src={c.receiver?.avatar || "/noavatar.jpg"} alt="" />
-            <span>{c.receiver?.username}</span>
-            <p>{c.lastMessage}</p>
-          </div>
-        ))}
-      </div>
+      {/* 只有在没有初始聊天时才显示聊天列表 */}
+      {!initialChat && (
+        <div className="messages">
+          <p className="text-4xl mt-5">消息</p>
+          {chats?.map((c) => (
+            <div
+              className="message"
+              key={c.id}
+              style={{
+                backgroundColor:
+                  (c.seenBy && c.seenBy.includes(currentUser.id)) || chat?.id === c.id
+                    ? "white"
+                    : "#fecd514e",
+              }}
+              onClick={() => c.receiver && handleOpenChat(c.id, c.receiver)}
+            >
+              <img src={c.receiver?.avatar || "/noavatar.jpg"} alt="" />
+              <span>{c.receiver?.username || "未知用户"}</span>
+              <p>{c.lastMessage || ""}</p>
+            </div>
+          ))}
+        </div>
+      )}
       {chat && (
         <div className="chatBox">
           <div className="top">
@@ -102,9 +112,12 @@ function Chat({ chats }) {
               <img src={chat.receiver?.avatar || "noavatar.jpg"} alt="" />
               {chat.receiver?.username}
             </div>
-            <span className="close" onClick={() => setChat(null)}>
-              X
-            </span>
+            {/* 只有在没有初始聊天时才显示关闭按钮（因为弹窗已经有关闭按钮了） */}
+            {!initialChat && (
+              <span className="close" onClick={() => setChat(null)}>
+                X
+              </span>
+            )}
           </div>
           <div className="center">
             {chat.messages.map((message) => (

@@ -1,0 +1,839 @@
+.sitterPostPage {
+  min-height: 100vh;
+  display: flex;
+  gap: 40px;
+  padding: 30px 50px;
+  background: linear-gradient(135deg, #fef9f3 0%, #fff5eb 50%, #fef3e4 100%);
+  position: relative;
+
+  // 进度条
+  .progressBar {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    background: white;
+    padding: 20px 40px;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(255, 131, 38, 0.15);
+
+    .progressSteps {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .progressStep {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+
+        .stepNumber {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: #e0e0e0;
+          color: #888;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 14px;
+          transition: all 0.3s ease;
+        }
+
+        .stepLabel {
+          font-size: 12px;
+          color: #888;
+          white-space: nowrap;
+          transition: all 0.3s ease;
+        }
+
+        &.active {
+          .stepNumber {
+            background: linear-gradient(135deg, #ff8326 0%, #ff9f55 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 131, 38, 0.4);
+          }
+          .stepLabel {
+            color: #ff8326;
+            font-weight: 600;
+          }
+        }
+
+        &.completed {
+          .stepNumber {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+          }
+          .stepLabel {
+            color: #4caf50;
+          }
+        }
+      }
+
+      .progressLine {
+        width: 60px;
+        height: 3px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        margin-bottom: 20px;
+      }
+    }
+  }
+
+  // 主表单容器
+  .formContainer {
+    flex: 2;
+    max-width: 700px;
+    margin-top: 100px;
+
+    .formHeader {
+      text-align: center;
+      margin-bottom: 40px;
+
+      h1 {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: 700;
+      }
+
+      p {
+        color: #666;
+        font-size: 1.1rem;
+      }
+    }
+
+    form {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+
+      .formStep {
+        animation: fadeIn 0.4s ease;
+
+        .stepTitle {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 30px;
+          padding-bottom: 15px;
+          border-bottom: 2px solid #f5f5f5;
+
+          .stepIcon {
+            font-size: 1.8rem;
+          }
+
+          h2 {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+          }
+        }
+
+        .formGroup {
+          margin-bottom: 24px;
+
+          label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
+
+            .required {
+              color: #ff4757;
+            }
+          }
+
+          input, select, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+
+            &:focus {
+              outline: none;
+              border-color: #ff8326;
+              background: white;
+              box-shadow: 0 0 0 4px rgba(255, 131, 38, 0.1);
+            }
+
+            &::placeholder {
+              color: #aaa;
+            }
+
+            &[readonly] {
+              background: #f5f5f5;
+              cursor: not-allowed;
+            }
+          }
+
+          textarea {
+            resize: vertical;
+            min-height: 100px;
+          }
+
+          select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 45px;
+          }
+        }
+
+        .formRow {
+          display: flex;
+          gap: 20px;
+
+          .formGroup {
+            flex: 1;
+          }
+        }
+
+        // 头像上传
+        .avatarGroup {
+          .avatarUpload {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+
+            .avatarPreview {
+              width: 100px;
+              height: 100px;
+              border-radius: 50%;
+              overflow: hidden;
+              border: 3px solid #ff8326;
+              box-shadow: 0 4px 15px rgba(255, 131, 38, 0.2);
+
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              }
+
+              .avatarPlaceholder {
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #fef3e4 0%, #fff5eb 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                svg {
+                  width: 40px;
+                  height: 40px;
+                  stroke: #ff8326;
+                }
+              }
+            }
+
+            .cloudinary-button {
+              padding: 12px 24px;
+              background: linear-gradient(135deg, #ff8326 0%, #ff9f55 100%);
+              color: white;
+              border: none;
+              border-radius: 12px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.3s ease;
+
+              &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(255, 131, 38, 0.4);
+              }
+            }
+          }
+        }
+
+        // 资质认证
+        .certificationsGroup {
+          .certificationsWrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            .certificationItem {
+              display: flex;
+              gap: 10px;
+
+              input {
+                flex: 1;
+              }
+
+              .removeBtn {
+                width: 44px;
+                height: 44px;
+                border: 2px solid #ff4757;
+                background: white;
+                color: #ff4757;
+                border-radius: 12px;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+
+                &:hover {
+                  background: #ff4757;
+                  color: white;
+                }
+              }
+            }
+
+            .addBtn {
+              padding: 12px;
+              border: 2px dashed #ff8326;
+              background: transparent;
+              color: #ff8326;
+              border-radius: 12px;
+              cursor: pointer;
+              font-weight: 600;
+              transition: all 0.3s ease;
+
+              &:hover {
+                background: rgba(255, 131, 38, 0.1);
+              }
+            }
+          }
+        }
+
+        // 位置提示
+        .locationHint {
+          background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%);
+          padding: 12px 20px;
+          border-radius: 12px;
+          color: #2196f3;
+          font-size: 0.9rem;
+          margin-top: -10px;
+        }
+
+        // 价格输入
+        .priceInputWrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+
+          .pricePrefix {
+            position: absolute;
+            left: 18px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ff8326;
+          }
+
+          input {
+            padding-left: 40px;
+          }
+
+          &.small {
+            input {
+              padding-left: 35px;
+            }
+            .pricePrefix {
+              left: 14px;
+              font-size: 1rem;
+            }
+          }
+        }
+
+        // 服务区域
+        .servicesSection {
+          & > label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
+
+            .required {
+              color: #ff4757;
+            }
+          }
+
+          .servicesWrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .serviceCard {
+              background: linear-gradient(135deg, #fef9f3 0%, #fff5eb 100%);
+              border-radius: 16px;
+              padding: 20px;
+              border: 2px solid transparent;
+              transition: all 0.3s ease;
+
+              &:hover {
+                border-color: #ff8326;
+              }
+
+              .serviceHeader {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 16px;
+
+                .serviceIcon {
+                  font-size: 1.5rem;
+                }
+
+                select {
+                  flex: 1;
+                  padding: 10px 15px;
+                  border: 2px solid #eee;
+                  border-radius: 10px;
+                  background: white;
+                  font-size: 1rem;
+                  cursor: pointer;
+
+                  &:focus {
+                    border-color: #ff8326;
+                    outline: none;
+                  }
+                }
+
+                .removeServiceBtn {
+                  width: 36px;
+                  height: 36px;
+                  border: none;
+                  background: #ff4757;
+                  color: white;
+                  border-radius: 10px;
+                  cursor: pointer;
+                  font-size: 0.9rem;
+                  transition: all 0.3s ease;
+
+                  &:hover {
+                    transform: scale(1.1);
+                  }
+                }
+              }
+
+              .serviceDetails {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 12px;
+
+                .serviceField {
+                  flex: 1;
+
+                  label {
+                    display: block;
+                    margin-bottom: 6px;
+                    font-size: 0.85rem;
+                    color: #666;
+                    font-weight: 500;
+
+                    .required {
+                      color: #ff4757;
+                    }
+                  }
+
+                  input {
+                    width: 100%;
+                    padding: 10px 14px;
+                    border: 2px solid #eee;
+                    border-radius: 10px;
+                    background: white;
+                    font-size: 0.95rem;
+
+                    &:focus {
+                      border-color: #ff8326;
+                      outline: none;
+                    }
+                  }
+                }
+              }
+
+              .serviceField.description {
+                label {
+                  display: block;
+                  margin-bottom: 6px;
+                  font-size: 0.85rem;
+                  color: #666;
+                  font-weight: 500;
+                }
+
+                textarea {
+                  width: 100%;
+                  padding: 10px 14px;
+                  border: 2px solid #eee;
+                  border-radius: 10px;
+                  background: white;
+                  font-size: 0.95rem;
+                  resize: vertical;
+
+                  &:focus {
+                    border-color: #ff8326;
+                    outline: none;
+                  }
+                }
+              }
+            }
+
+            .addServiceBtn {
+              padding: 16px;
+              border: 2px dashed #ff8326;
+              background: transparent;
+              color: #ff8326;
+              border-radius: 16px;
+              cursor: pointer;
+              font-weight: 600;
+              font-size: 1rem;
+              transition: all 0.3s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+
+              span {
+                font-size: 1.2rem;
+              }
+
+              &:hover {
+                background: rgba(255, 131, 38, 0.1);
+                transform: translateY(-2px);
+              }
+            }
+          }
+        }
+      }
+
+      // 错误消息
+      .errorMessage {
+        background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+        color: #c62828;
+        padding: 14px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        border-left: 4px solid #c62828;
+      }
+
+      // 导航按钮
+      .formNavigation {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid #f5f5f5;
+
+        .prevBtn, .nextBtn, .submitBtn {
+          padding: 16px 32px;
+          border: none;
+          border-radius: 12px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .prevBtn {
+          background: #f5f5f5;
+          color: #666;
+
+          &:hover {
+            background: #e0e0e0;
+          }
+        }
+
+        .nextBtn {
+          background: linear-gradient(135deg, #ff8326 0%, #ff9f55 100%);
+          color: white;
+          margin-left: auto;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 131, 38, 0.4);
+          }
+        }
+
+        .submitBtn {
+          background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+          color: white;
+          margin-left: auto;
+
+          &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+          }
+
+          &:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+          }
+
+          .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+          }
+        }
+      }
+    }
+  }
+
+  // 侧边信息栏
+  .sideInfo {
+    flex: 1;
+    max-width: 350px;
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 130px;
+    height: fit-content;
+
+    .infoCard, .previewCard {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+
+      .infoIcon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+      }
+
+      h3 {
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 16px;
+        font-weight: 600;
+      }
+
+      ul, ol {
+        padding-left: 0;
+        list-style: none;
+
+        li {
+          padding: 10px 0;
+          color: #555;
+          font-size: 0.95rem;
+          border-bottom: 1px solid #f5f5f5;
+
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+      }
+
+      ol {
+        counter-reset: step;
+
+        li {
+          counter-increment: step;
+          padding-left: 35px;
+          position: relative;
+
+          &::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #ff8326 0%, #ff9f55 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+
+    .previewCard {
+      background: linear-gradient(135deg, #ff8326 0%, #ff9f55 100%);
+      color: white;
+
+      h3 {
+        color: white;
+        opacity: 0.9;
+      }
+
+      .previewContent {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 16px;
+
+        .previewAvatar {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 2px solid white;
+          flex-shrink: 0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .previewAvatarPlaceholder {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+          }
+        }
+
+        .previewInfo {
+          h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+          }
+
+          p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 2px 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 动画
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// 响应式设计
+@media (max-width: 1024px) {
+  .sitterPostPage {
+    flex-direction: column;
+    padding: 20px;
+
+    .progressBar {
+      position: relative;
+      top: 0;
+      transform: none;
+      margin-bottom: 20px;
+      padding: 15px 25px;
+
+      .progressSteps {
+        .progressLine {
+          width: 40px;
+        }
+        .progressStep {
+          .stepLabel {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .formContainer {
+      margin-top: 20px;
+      max-width: 100%;
+
+      form {
+        padding: 25px;
+      }
+    }
+
+    .sideInfo {
+      max-width: 100%;
+      margin-top: 30px;
+      position: relative;
+      top: 0;
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      .infoCard, .previewCard {
+        flex: 1;
+        min-width: 280px;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .sitterPostPage {
+    .formContainer {
+      .formHeader {
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+
+      form {
+        padding: 20px;
+
+        .formStep {
+          .formRow {
+            flex-direction: column;
+            gap: 0;
+          }
+
+          .servicesSection .servicesWrapper .serviceCard .serviceDetails {
+            flex-direction: column;
+            gap: 12px;
+          }
+        }
+
+        .formNavigation {
+          flex-direction: column;
+          gap: 12px;
+
+          .prevBtn, .nextBtn, .submitBtn {
+            width: 100%;
+            justify-content: center;
+          }
+
+          .nextBtn, .submitBtn {
+            margin-left: 0;
+          }
+        }
+      }
+    }
+
+    .sideInfo {
+      .infoCard, .previewCard {
+        min-width: 100%;
+      }
+    }
+  }
+}
+

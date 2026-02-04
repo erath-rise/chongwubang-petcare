@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ListPage from "./routes/listPage/listPage";
 import SitterList from "./routes/sitter-list/sitterList";
 import SitterDetail from "./routes/sitter-detail/sitterDetail";
+import SitterPostPage from "./routes/sitterPostPage/sitterPostPage";
 import { Layout, RequireAuth } from "./routes/layout/layout";
 import SinglePage from "./routes/singlePage/singlePage";
 import ProfilePage from "./routes/profilePage/profilePage";
@@ -67,6 +68,10 @@ function App() {
         {
           path: "/add",
           element: <NewPostPage />,
+        },
+        {
+          path: "/sitter/add",
+          element: <SitterPostPage />,
         },
       ],
     },

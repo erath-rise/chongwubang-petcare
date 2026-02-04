@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 // import SearchBar from "../../components/searchBar/SearchBar";
 import "./homePage.scss";
 import { AuthContext } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function HomePage() {
 
@@ -129,15 +129,29 @@ function HomePage() {
                   </div>
 
                   {/* 搜索按钮 */}
-                  <button 
-                    type="submit"
-                    className="w-full md:w-auto bg-[#FFC107] hover:bg-[#FFB300] text-gray-900 font-semibold px-8 py-3 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    查找护理员
-                  </button>
+                  <div className="flex flex-col md:flex-row gap-4 items-center">
+                    <button 
+                      type="submit"
+                      className="w-full md:w-auto bg-[#FFC107] hover:bg-[#FFB300] text-gray-900 font-semibold px-8 py-3 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      查找护理员
+                    </button>
+                    
+                    <span className="text-gray-400 hidden md:inline">或</span>
+                    
+                    <Link 
+                      to="/sitter/add"
+                      className="w-full md:w-auto bg-[#FF8326] hover:bg-[#E67320] text-white font-semibold px-8 py-3 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      成为护理员
+                    </Link>
+                  </div>
                 </form>
               </div>
               
