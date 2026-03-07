@@ -1,5 +1,5 @@
 import HomePage from "./routes/homePage/homePage";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import ListPage from "./routes/listPage/listPage";
 import SitterList from "./routes/sitter-list/sitterList";
 import SitterDetail from "./routes/sitter-detail/sitterDetail";
@@ -11,7 +11,15 @@ import Login from "./routes/login/login";
 import Register from "./routes/register/register";
 import ProfileUpdatePage from "./routes/profileUpdatePage/profileUpdatePage";
 import NewPostPage from "./routes/newPostPage/newPostPage";
+import OrderList from "./routes/orderList/orderList";
+import OrderDetail from "./routes/orderDetail/orderDetail";
+import CreateOrder from "./routes/createOrder/createOrder";
 import { listPageLoader, profilePageLoader, singlePageLoader } from "./lib/loaders";
+import AdminLayout from "./routes/admin/layout/AdminLayout";
+import Dashboard from "./routes/admin/dashboard/Dashboard";
+import UserManagement from "./routes/admin/users/UserManagement";
+import OrderManagement from "./routes/admin/orders/OrderManagement";
+import SitterManagement from "./routes/admin/sitters/SitterManagement";
 
 function App() {
   const router = createBrowserRouter([
@@ -72,6 +80,44 @@ function App() {
         {
           path: "/sitter/add",
           element: <SitterPostPage />,
+        },
+        {
+          path: "/orders",
+          element: <OrderList />,
+        },
+        {
+          path: "/orders/:id",
+          element: <OrderDetail />,
+        },
+        {
+          path: "/sitters/:sitterId/book",
+          element: <CreateOrder />,
+        },
+      ],
+    },
+    {
+      path: "/admin",
+      element: <AdminLayout />,
+      children: [
+        {
+          index: true,
+          element: <Navigate to="/admin/dashboard" replace />,
+        },
+        {
+          path: "dashboard",
+          element: <Dashboard />,
+        },
+        {
+          path: "users",
+          element: <UserManagement />,
+        },
+        {
+          path: "orders",
+          element: <OrderManagement />,
+        },
+        {
+          path: "sitters",
+          element: <SitterManagement />,
         },
       ],
     },

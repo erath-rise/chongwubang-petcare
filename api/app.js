@@ -9,6 +9,8 @@ import chatRoute from "./routes/chat.route.js";
 import messageRoute from "./routes/message.route.js";
 import sitterRoute from "./routes/sitter.route.js";
 import bookingRoute from "./routes/booking.route.js";
+import orderRoute from "./routes/order.route.js";
+import adminRoute from "./routes/admin.route.js";
 import { Server } from "socket.io";
 import http from "http";
 
@@ -42,6 +44,8 @@ app.use("/api/chats", chatRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/sitters", sitterRoute);
 app.use("/api/bookings", bookingRoute);
+app.use("/api/orders", orderRoute);
+app.use("/api/admin", adminRoute);
 
 const io = new Server(server, {
   cors: {

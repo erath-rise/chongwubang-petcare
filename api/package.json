@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "prisma generate && tsc",
     "start": "node app.js",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "create-admin": "node prisma/createAdmin.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

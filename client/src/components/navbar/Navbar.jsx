@@ -38,10 +38,28 @@ function Navbar() {
           <div className="user">
             <img src={currentUser.avatar || "/noavatar.jpg"} alt="" />
             <span>{currentUser.username}</span>
-            <Link to="/profile" className="profile">
-              {number > 0 && <div className="notification">{number}</div>}
-              <span>个人中心</span>
-            </Link>
+            {currentUser.role === "admin" && (
+              <>
+              <Link to="/admin/dashboard" className="admin-link">
+                <span>管理后台</span>
+              </Link>
+              <Link to="/profile" className="profile">
+                {number > 0 && <div className="notification">{number}</div>}
+                <span>个人中心</span>
+              </Link>
+              </>
+            )}
+            {currentUser.role !== "admin" && (
+              <>
+              <Link to="/profile" className="profile">
+                {number > 0 && <div className="notification">{number}</div>}
+                <span>个人中心</span>
+              </Link>
+              <Link to="/orders" className="orders">
+                <span>我的订单</span>
+              </Link>
+              </>
+            )}
           </div>
         ) : (
           <>

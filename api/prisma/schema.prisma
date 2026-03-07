@@ -61,6 +61,9 @@ model user {
   username      String         @unique
   password      String
   avatar        String?
+  role          String         @default("user") // 用户角色：user, admin
+  isActive      Boolean        @default(true) // 用户是否激活
+  lastLoginAt   DateTime?      // 最后登录时间
   createdAt     DateTime       @default(now())
   posts         post[]
   savedPosts    savedPost[]
@@ -69,6 +72,8 @@ model user {
   sitter        sitter? // 护理员信息（如果用户是护理员）
   sitterReviews sitterReview[] // 用户发布的护理员评价
   bookings      booking[] // 用户的预订记录
+  orders        order[] // 用户的订单
+  orderReviews  orderReview[] // 用户的订单评价
 }
 
 model chat {
@@ -115,6 +120,7 @@ model sitter {
   reviews         sitterReview[] // 收到的评价
   availability    sitterAvailability[] // 可用时间
   bookings        booking[] // 预订记录
+  orders          order[] // 订单记录
 }
 
 // 护理员服务类型模型
@@ -177,4 +183,85 @@ model booking {
   lastContacted DateTime? // 最后联系时间
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// 订单模型
+model order {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber     String      @unique // 订单号（唯一标识）
+  sitter          sitter      @relation(fields: [sitterId], references: [id])
+  sitterId        String      @db.ObjectId
+  user            user        @relation(fields: [userId], references: [id])
+  userId          String      @db.ObjectId
+  
+  // 服务信息
+  serviceType     String      // 服务类型：遛狗、宠物寄养、上门照看、日间照看
+  serviceDate     DateTime    // 服务日期
+  startTime       String      // 开始时间 (HH:mm)
+  endTime         String      // 结束时间 (HH:mm)
+  duration        Int?        // 服务时长（分钟）
+  
+  // 宠物信息
+  petInfo         String?     // 宠物基本信息
+  petName         String?     // 宠物名称
+  petType         String?     // 宠物类型（狗、猫等）
+  petSize         String?     // 宠物大小（小型、中型、大型）
+  specialNeeds    String?     // 特殊需求
+  
+  // 价格信息（仅供参考，不涉及实际支付）
+  basePrice       Int         // 基础价格
+  serviceFee      Int         @default(0) // 服务费
+  totalPrice      Int         // 总价
+  
+  // 订单状态
+  status          String      @default("pending") // 订单状态：pending, accepted, in_progress, completed, cancelled
+  acceptedAt      DateTime?   // 接单时间
+  startedAt       DateTime?   // 开始服务时间
+  completedAt     DateTime?   // 完成时间
+  cancelledAt     DateTime?   // 取消时间
+  cancelledBy     String?     // 取消人：user, sitter, system
+  cancelReason    String?     // 取消原因
+  
+  // 确认信息
+  userConfirmed   Boolean     @default(false) // 用户确认完成
+  sitterConfirmed Boolean     @default(false) // 护理员确认完成
+  
+  // 评价信息
+  userReview      orderReview? // 用户评价
+  
+  // 地址信息
+  serviceAddress  String?     // 服务地址
+  latitude        String?     // 纬度
+  longitude       String?     // 经度
+  
+  // 联系信息
+  contactPhone    String?     // 联系电话
+  contactNote     String?     // 联系备注
+  
+  // 系统字段
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([userId])
+  @@index([sitterId])
+  @@index([status])
+}
+
+// 订单评价模型
+model orderReview {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  order       order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String   @unique @db.ObjectId
+  reviewer    user     @relation(fields: [reviewerId], references: [id])
+  reviewerId  String   @db.ObjectId
+  revieweeId  String   @db.ObjectId // 被评价人ID（user或sitter）
+  revieweeType String  // 被评价人类型：user, sitter
+  
+  rating      Float    // 评分 1-5
+  comment     String?  // 评价内容
+  images      String[] // 评价图片
+  tags        String[] // 评价标签：专业、耐心、准时等
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

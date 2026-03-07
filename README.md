@@ -8,10 +8,6 @@
 - **前端**: React UI 开发，Vite 构建工具，Axios 用于 API 调用，Socket.io 实时通信
 - **其他工具**: Git 版本控制，Render 用于后端部署，Vercel 用于前端部署
 
-## 在线网站地址
-
-https://pet-care-hub.vercel.app/
-
 ## 功能特性
 
 - **个人资料管理** - 用户可以创建和管理个人资料

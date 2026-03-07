@@ -102,7 +102,7 @@ function SitterDetail() {
   const formattedSitter = {
     id: sitter.id,
     name: sitter.name,
-    avatar: sitter.avatar || sitter.user?.avatar || "https://i.pravatar.cc/600?img=12",
+    avatar: sitter.avatar || sitter.user?.avatar,
     images: sitter.avatar ? [
       sitter.avatar,
       sitter.avatar,
@@ -147,7 +147,8 @@ function SitterDetail() {
     cancellationPolicy: "如果您在预订前12小时前取消，可全额退款。",
     paymentMethods: ["mastercard", "visa", "amex", "apple-pay", "google-pay", "wechat", "alipay"],
     certifications: sitter.certifications || [],
-    reviewsList: sitter.reviews || [],
+    reviewsList: sitter.reviews || [], // 包含 sitterReview 和 orderReview
+    orderReviews: sitter.orderReviews || [], // 单独的订单评价列表
     availability: sitter.availability || [],
   };
 
@@ -264,7 +265,7 @@ function SitterDetail() {
           {/* 保姆基本信息 */}
           <div className="sitterBasicInfo">
             <div className="sitterHeader">
-              <img src={formattedSitter.avatar} alt={formattedSitter.name} className="sitterAvatar" />
+              <img src={formattedSitter.avatar} className="sitterAvatar" />
               <div>
                 <h1 className="sitterName">{formattedSitter.name}</h1>
                 <p className="sitterTagline">{formattedSitter.tagline} • {formattedSitter.locationDetail}</p>
@@ -470,6 +471,78 @@ function SitterDetail() {
               </div>
             </div>
           </section>
+
+          {/* 评价区域 */}
+          {formattedSitter.reviewsList && formattedSitter.reviewsList.length > 0 && (
+            <section className="reviewsSection">
+              <h2 className="sectionTitle">
+                评价 ({formattedSitter.reviewsList.length})
+              </h2>
+              <div className="reviewsList">
+                {formattedSitter.reviewsList.map((review) => (
+                  <div key={review.id} className="reviewItem">
+                    <div className="reviewHeader">
+                      <div className="reviewerInfo">
+                        <img
+                          src={review.user?.avatar || "/noavatar.jpg"}
+                          alt={review.user?.username || "用户"}
+                        />
+                        <div>
+                          <div className="reviewerName">
+                            {review.user?.username || "匿名用户"}
+                          </div>
+                          <div className="reviewDate">
+                            {new Date(review.createdAt).toLocaleDateString("zh-CN", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="reviewRating">
+                        {"⭐".repeat(Math.floor(review.rating))}
+                        {review.rating % 1 >= 0.5 && "⭐"}
+                        <span className="ratingValue">{review.rating}</span>
+                      </div>
+                    </div>
+                    {review.isOrderReview && review.orderInfo && (
+                      <div className="orderInfo">
+                        <span className="orderBadge">订单评价</span>
+                        <span className="orderDetails">
+                          订单号：{review.orderInfo.orderNumber} · {review.orderInfo.serviceType}
+                        </span>
+                      </div>
+                    )}
+                    {review.comment && (
+                      <p className="reviewComment">{review.comment}</p>
+                    )}
+                    {review.images && review.images.length > 0 && (
+                      <div className="reviewImages">
+                        {review.images.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`评价图片 ${index + 1}`}
+                            className="reviewImage"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {review.tags && review.tags.length > 0 && (
+                      <div className="reviewTags">
+                        {review.tags.map((tag, index) => (
+                          <span key={index} className="reviewTag">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* 右侧预订卡片 */}
@@ -517,6 +590,14 @@ function SitterDetail() {
               </div>
             </div>
 
+            <button 
+              className="bookButton" 
+              onClick={() => navigate(`/sitters/${id}/book`, { 
+                state: { serviceType: selectedService } 
+              })}
+            >
+              立即下单
+            </button>
             <button className="contactButton" onClick={handleContact}>联系 {formattedSitter.name}</button> 
 
             <div className="cancellationPolicy">

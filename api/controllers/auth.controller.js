@@ -39,18 +39,28 @@ export const login = async (req, res) => {
     });
     if (!user) return res.status(400).json({ message: "Invalid Credentials!" });
 
+    // CHECK IF USER IS ACTIVE
+    if (!user.isActive) {
+      return res.status(403).json({ message: "账户已被禁用！" });
+    }
+
     // CHECK IF THE PASSWORD IS CORRECT
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
       return res.status(400).json({ message: "Invalid Credentials!" });
 
+    // UPDATE LAST LOGIN TIME
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
     // GENERATE COOKIE TOKEN AND SEND TO THE USER
-    // res.setHeader("Set-Cookie", "test=" + "myValue").json("success")
     const age = 1000 * 60 * 60 * 24 * 7;
     const token = jwt.sign(
       {
         id: user.id,
-        isAdmin: false,
+        isAdmin: user.role === "admin", // 从数据库读取角色
       },
       process.env.JWT_SECRET_KEY,
       { expiresIn: age }

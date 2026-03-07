@@ -82,6 +82,27 @@ nav {
         }
       }
 
+      .admin-link {
+        padding: 12px 24px;
+        background-color: #6366f1;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        margin-right: 10px;
+        transition: all 0.2s;
+
+        &:hover {
+          background-color: #4f46e5;
+        }
+
+        span {
+          @include sm {
+            display: none;
+          }
+        }
+      }
+
       .profile{
         padding: 12px 24px;
         background-color: #FF8326;

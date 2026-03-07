@@ -21,6 +21,24 @@ async function main() {
 
   const hashedPassword = await getHashedPassword();
 
+  // 创建管理员账户
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@petcare.com' },
+    update: {
+      role: 'admin',
+      isActive: true,
+    },
+    create: {
+      email: 'admin@petcare.com',
+      username: 'admin',
+      password: hashedPassword,
+      role: 'admin',
+      isActive: true,
+      avatar: 'https://i.pravatar.cc/150?img=1',
+    },
+  });
+  console.log('✅ 创建了管理员账户: admin@petcare.com (密码: 123456)');
+
   // 创建测试用户
   const users = await Promise.all([
     prisma.user.upsert({
@@ -266,11 +284,14 @@ async function main() {
 
   console.log('\n🎉 数据填充完成！');
   console.log('\n📝 测试账号（密码都是 123456）:');
-  console.log('  - liming@example.com');
-  console.log('  - wangfang@example.com');
-  console.log('  - zhangxiaoyu@example.com');
-  console.log('  - liuqiang@example.com');
-  console.log('  - chensiqi@example.com');
+  console.log('  👑 管理员账号:');
+  console.log('     - admin@petcare.com (用户名: admin)');
+  console.log('  👤 普通用户账号:');
+  console.log('     - liming@example.com');
+  console.log('     - wangfang@example.com');
+  console.log('     - zhangxiaoyu@example.com');
+  console.log('     - liuqiang@example.com');
+  console.log('     - chensiqi@example.com');
 }
 
 main()

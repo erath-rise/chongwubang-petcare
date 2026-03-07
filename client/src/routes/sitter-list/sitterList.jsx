@@ -257,7 +257,6 @@ function SitterList() {
                   <div className="sitterCardContent">
                     <img 
                       src={sitter.avatar || sitter.user?.avatar || 'https://via.placeholder.com/120'} 
-                      alt={sitter.name} 
                       className="sitterAvatar"
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/120x120/4F46E5/ffffff?text=' + sitter.name.charAt(0);

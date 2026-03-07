@@ -31,7 +31,12 @@ function Login() {
 
       updateUser(res.data);
 
-      navigate("/");
+      // 如果是管理员，跳转到管理后台
+      if (res.data.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.response.data.message);
     } finally {

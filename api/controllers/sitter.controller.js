@@ -156,7 +156,62 @@ export const getSitter = async (req, res) => {
       return res.status(404).json({ message: "护理员未找到" });
     }
 
-    res.status(200).json(sitter);
+    // 获取该护理员的订单评价
+    const orderReviews = await prisma.orderReview.findMany({
+      where: {
+        revieweeId: sitter.userId,
+        revieweeType: "sitter",
+      },
+      include: {
+        reviewer: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        },
+        order: {
+          select: {
+            id: true,
+            orderNumber: true,
+            serviceType: true,
+            serviceDate: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // 将订单评价转换为与 sitterReview 相同的格式，合并到 reviews 中
+    const formattedOrderReviews = orderReviews.map(orderReview => ({
+      id: orderReview.id,
+      rating: orderReview.rating,
+      comment: orderReview.comment,
+      images: orderReview.images,
+      createdAt: orderReview.createdAt,
+      user: orderReview.reviewer,
+      orderInfo: {
+        orderNumber: orderReview.order.orderNumber,
+        serviceType: orderReview.order.serviceType,
+        serviceDate: orderReview.order.serviceDate,
+      },
+      isOrderReview: true, // 标记这是订单评价
+    }));
+
+    // 合并两种评价
+    const allReviews = [
+      ...sitter.reviews.map(review => ({ ...review, isOrderReview: false })),
+      ...formattedOrderReviews,
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // 返回合并后的数据
+    res.status(200).json({
+      ...sitter,
+      reviews: allReviews,
+      orderReviews: formattedOrderReviews, // 也单独返回订单评价，方便前端使用
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "获取护理员详情失败" });
